@@ -22,13 +22,13 @@ func NewModulesService(client *resty.Client) *Modules {
 
 // Search Modules
 // https://developer.hashicorp.com/terraform/registry/api-docs#search-modules
-func (s *Modules) Search(ctx context.Context, q *apiv1.SearchParams) (*apiv1.ListModules, error) {
+func (s *Modules) Search(ctx context.Context, q *apiv1.SearchParams) (*apiv1.ModuleList, error) {
 	values, err := query.Values(q)
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.ListModules{}).SetQueryParamsFromValues(values).Get("search")
+	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.ModuleList{}).SetQueryParamsFromValues(values).Get("search")
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (s *Modules) Search(ctx context.Context, q *apiv1.SearchParams) (*apiv1.Lis
 		return nil, errors.New(response.String())
 	}
 
-	return response.Result().(*apiv1.ListModules), nil
+	return response.Result().(*apiv1.ModuleList), nil
 }
 
 // Get a Specific Module
@@ -48,7 +48,7 @@ func (s *Modules) Get(ctx context.Context, namespace, name, provider, version st
 		"provider":  provider,
 		"version":   version,
 	}
-	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.Module{}).SetPathParams(pathParams).Get("/{namespace}/{name}/{provider}/{version}")
+	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.Module{}).SetPathParams(pathParams).Get("{namespace}/{name}/{provider}/{version}")
 	if err != nil {
 		return nil, err
 	}
@@ -61,17 +61,15 @@ func (s *Modules) Get(ctx context.Context, namespace, name, provider, version st
 
 // List Modules
 // https://developer.hashicorp.com/terraform/registry/api-docs#list-modules
-func (s *Modules) List(ctx context.Context, q *apiv1.ListParams, namespace ...string) (*apiv1.ListModules, error) {
-	var ns string
-	if len(namespace) > 0 {
-		ns = namespace[0]
-	}
+func (s *Modules) List(ctx context.Context, q *apiv1.ListParams, namespace string) (*apiv1.ModuleList, error) {
 	values, err := query.Values(q)
 	if err != nil {
 		return nil, err
 	}
-
-	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.ListModules{}).SetQueryParamsFromValues(values).Get(ns)
+	pathParams := map[string]string{
+		"namespace": namespace,
+	}
+	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.ModuleList{}).SetPathParams(pathParams).SetQueryParamsFromValues(values).Get("{namespace}")
 	if err != nil {
 		return nil, err
 	}
@@ -79,18 +77,18 @@ func (s *Modules) List(ctx context.Context, q *apiv1.ListParams, namespace ...st
 		return nil, errors.New(response.String())
 	}
 
-	return response.Result().(*apiv1.ListModules), nil
+	return response.Result().(*apiv1.ModuleList), nil
 }
 
 // ListAvailableVersions List Available Versions for a Specific Module
 // https://developer.hashicorp.com/terraform/registry/api-docs#list-available-versions-for-a-specific-module
-func (s *Modules) ListAvailableVersions(ctx context.Context, namespace, name, provider string) (*apiv1.ListAvailableVersions, error) {
+func (s *Modules) ListAvailableVersions(ctx context.Context, namespace, name, provider string) (*apiv1.AvailableVersionList, error) {
 	pathParams := map[string]string{
 		"namespace": namespace,
 		"name":      name,
 		"provider":  provider,
 	}
-	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.ListAvailableVersions{}).SetPathParams(pathParams).Get("/{namespace}/{name}/{provider}/versions")
+	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.AvailableVersionList{}).SetPathParams(pathParams).Get("{namespace}/{name}/{provider}/versions")
 	if err != nil {
 		return nil, err
 	}
@@ -98,12 +96,12 @@ func (s *Modules) ListAvailableVersions(ctx context.Context, namespace, name, pr
 		return nil, errors.New(response.String())
 	}
 
-	return response.Result().(*apiv1.ListAvailableVersions), nil
+	return response.Result().(*apiv1.AvailableVersionList), nil
 }
 
 // ListLatestVersionForAllProviders List Latest Version of Module for All Providers
 // https://developer.hashicorp.com/terraform/registry/api-docs#list-latest-version-of-module-for-all-providers
-func (s *Modules) ListLatestVersionForAllProviders(ctx context.Context, q *apiv1.ListLatestVersionParams, namespace, name string) (*apiv1.ListModules, error) {
+func (s *Modules) ListLatestVersionForAllProviders(ctx context.Context, q *apiv1.ListLatestVersionParams, namespace, name string) (*apiv1.ModuleList, error) {
 	values, err := query.Values(q)
 	if err != nil {
 		return nil, err
@@ -112,7 +110,7 @@ func (s *Modules) ListLatestVersionForAllProviders(ctx context.Context, q *apiv1
 		"namespace": namespace,
 		"name":      name,
 	}
-	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.ListModules{}).SetPathParams(pathParams).SetQueryParamsFromValues(values).Get("/{namespace}/{name}")
+	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.ModuleList{}).SetPathParams(pathParams).SetQueryParamsFromValues(values).Get("{namespace}/{name}")
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +118,7 @@ func (s *Modules) ListLatestVersionForAllProviders(ctx context.Context, q *apiv1
 		return nil, errors.New(response.String())
 	}
 
-	return response.Result().(*apiv1.ListModules), nil
+	return response.Result().(*apiv1.ModuleList), nil
 }
 
 // LatestVersionForSpecificProvider Latest Version of Module for Specific Provider
@@ -131,7 +129,7 @@ func (s *Modules) LatestVersionForSpecificProvider(ctx context.Context, namespac
 		"name":      name,
 		"provider":  provider,
 	}
-	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.Module{}).SetPathParams(pathParams).Get("/{namespace}/{name}/{provider}")
+	response, err := s.client.NewRequest().SetContext(ctx).SetResult(&apiv1.Module{}).SetPathParams(pathParams).Get("{namespace}/{name}/{provider}")
 	if err != nil {
 		return nil, err
 	}

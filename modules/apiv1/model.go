@@ -6,7 +6,7 @@ import (
 	"github.com/416-C/terraform-registry-go/pkg"
 )
 
-type ListModules struct {
+type ModuleList struct {
 	Meta    pkg.Meta `json:"meta"`
 	Modules []struct {
 		ID          string    `json:"id"`
@@ -23,11 +23,11 @@ type ListModules struct {
 	} `json:"modules"`
 }
 
-type ListAvailableVersions struct {
-	Modules []AvailableVersions `json:"modules"`
+type AvailableVersionList struct {
+	Modules []AvailableVersion `json:"modules"`
 }
 
-type AvailableVersions struct {
+type AvailableVersion struct {
 	Source   string `json:"source"`
 	Versions []struct {
 		Version string `json:"version"`
