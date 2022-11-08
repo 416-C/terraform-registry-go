@@ -1,12 +1,12 @@
 package apiv1
 
-type ListParams struct {
+type ListOptions struct {
 	Offset   int64  `form:"offset" url:"offset,omitempty"`
 	Provider string `form:"provider" url:"provider,omitempty"`
 	Verified bool   `form:"verified" url:"verified,omitempty"`
 }
 
-type SearchParams struct {
+type SearchOptions struct {
 	Q         string `form:"q" url:"q,omitempty"`
 	Offset    int64  `form:"offset" url:"offset,omitempty"`
 	Provider  string `form:"provider" url:"provider,omitempty"`
@@ -14,6 +14,6 @@ type SearchParams struct {
 	Verified  bool   `form:"verified" url:"verified,omitempty"`
 }
 
-type ListLatestVersionParams struct {
+type ListLatestVersionOptions struct {
 	Offset int64 `form:"offset" url:"offset,omitempty"`
 }

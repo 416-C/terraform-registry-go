@@ -6,47 +6,41 @@ import (
 	"github.com/416-C/terraform-registry-go/pkg"
 )
 
-type ModuleList struct {
-	Meta    pkg.Meta `json:"meta"`
-	Modules []struct {
-		ID          string    `json:"id"`
-		Owner       string    `json:"owner"`
-		Namespace   string    `json:"namespace"`
-		Name        string    `json:"name"`
-		Version     string    `json:"version"`
-		Provider    string    `json:"provider"`
-		Description string    `json:"description"`
-		Source      string    `json:"source"`
-		PublishedAt time.Time `json:"published_at"`
-		Downloads   int       `json:"downloads"`
-		Verified    bool      `json:"verified"`
-	} `json:"modules"`
+type Provider struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+	Source    string `json:"source"`
+	Version   string `json:"version"`
 }
 
-type AvailableVersionList struct {
-	Modules []AvailableVersion `json:"modules"`
+type Resource struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
-type AvailableVersion struct {
-	Source   string `json:"source"`
-	Versions []struct {
-		Version string `json:"version"`
-		//Submodules []struct {
-		//	Path      string `json:"path"`
-		//	Providers []struct {
-		//		Name    string `json:"name"`
-		//		Version string `json:"version"`
-		//	} `json:"providers"`
-		//	Dependencies []interface{} `json:"dependencies"`
-		//} `json:"submodules"`
-		Root struct {
-			Dependencies []interface{} `json:"dependencies"`
-			Providers    []struct {
-				Name    string `json:"name"`
-				Version string `json:"version"`
-			} `json:"providers"`
-		} `json:"root"`
-	} `json:"versions"`
+type Input struct {
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Description string `json:"description"`
+	Default     string `json:"default"`
+	Required    bool   `json:"required"`
+}
+
+type Output struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type Root struct {
+	Path                 string        `json:"path"`
+	Name                 string        `json:"name"`
+	Readme               string        `json:"readme"`
+	Empty                bool          `json:"empty"`
+	Inputs               []Input       `json:"inputs"`
+	Outputs              []Output      `json:"outputs"`
+	Dependencies         []interface{} `json:"dependencies"`
+	ProviderDependencies []Provider    `json:"provider_dependencies"`
+	Resources            []Resource    `json:"resources"`
 }
 
 type Module struct {
@@ -58,44 +52,37 @@ type Module struct {
 	Provider    string    `json:"provider"`
 	Description string    `json:"description"`
 	Source      string    `json:"source"`
+	Tag         string    `json:"tag"`
 	PublishedAt time.Time `json:"published_at"`
 	Downloads   int       `json:"downloads"`
 	Verified    bool      `json:"verified"`
-	Root        struct {
-		Path string `json:"path"`
-		//Readme string `json:"readme"`
-		Empty  bool `json:"empty"`
-		Inputs []struct {
-			Name        string `json:"name"`
-			Description string `json:"description"`
-			Default     string `json:"default"`
-		} `json:"inputs"`
-		Outputs []struct {
-			Name        string `json:"name"`
-			Description string `json:"description"`
-		} `json:"outputs"`
+	Root        Root      `json:"root"`
+	Submodules  []Root    `json:"submodules"`
+	Providers   []string  `json:"providers"`
+	Versions    []string  `json:"versions"`
+}
+
+type ModuleList struct {
+	Meta    pkg.Meta `json:"meta"`
+	Modules []Module `json:"modules"`
+}
+
+type Version struct {
+	Version string `json:"version"`
+	Root    struct {
+		Providers    []Provider    `json:"providers"`
 		Dependencies []interface{} `json:"dependencies"`
-		Resources    []interface{} `json:"resources"`
 	} `json:"root"`
-	//Submodules []struct {
-	//	Path   string `json:"path"`
-	//	Readme string `json:"readme"`
-	//	Empty  bool   `json:"empty"`
-	//	Inputs []struct {
-	//		Name        string `json:"name"`
-	//		Description string `json:"description"`
-	//		Default     string `json:"default"`
-	//	} `json:"inputs"`
-	//	Outputs []struct {
-	//		Name        string `json:"name"`
-	//		Description string `json:"description"`
-	//	} `json:"outputs"`
-	//	Dependencies []interface{} `json:"dependencies"`
-	//	Resources    []struct {
-	//		Name string `json:"name"`
-	//		Type string `json:"type"`
-	//	} `json:"resources"`
-	//} `json:"submodules"`
-	Providers []string `json:"providers"`
-	Versions  []string `json:"versions"`
+	Submodules []struct {
+		Path         string        `json:"path"`
+		Providers    []Provider    `json:"providers"`
+		Dependencies []interface{} `json:"dependencies"`
+	} `json:"submodules"`
+}
+
+type VersionList struct {
+	Modules []struct {
+		Source   string    `json:"source"`
+		Versions []Version `json:"versions"`
+	} `json:"modules"`
 }
